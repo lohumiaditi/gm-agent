@@ -14,9 +14,18 @@ const client = new Client({
   puppeteer: {
     headless: true,
     executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || null,
-    protocolTimeout: 300000, // 5 minutes patience
-    timeout: 300000,         // 5 minutes patience
-    args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage", "--disable-gpu", "--no-first-run"]
+    protocolTimeout: 300000,
+    timeout: 300000,
+    args: [
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--disable-dev-shm-usage",
+      "--disable-gpu",
+      "--no-first-run",
+      "--disable-background-timer-throttling",
+      "--disable-backgrounding-occluded-windows",
+      "--disable-renderer-backgrounding"
+    ]
   }
 });
 
@@ -82,7 +91,7 @@ async function generateGoodNightMessage() {
 
 function scheduleMessages() {
   // Morning Test 
-  cron.schedule("40 2 * * *", async () => {
+  cron.schedule("0 7 * * *", async () => {
     console.log("🌅 Sending good morning message...");
     try {
       const msg = await generateGoodMorningMessage();
@@ -92,7 +101,7 @@ function scheduleMessages() {
   }, { timezone: "Asia/Kolkata" });
 
   // Night Test 
-  cron.schedule("42 2 * * *", async () => {
+  cron.schedule("30 11 * * *", async () => {
     console.log("🌙 Sending good night message...");
     try {
       const msg = await generateGoodNightMessage();

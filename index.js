@@ -77,7 +77,8 @@ async function generateGoodNightMessage() {
 }
 
 function scheduleMessages() {
-  cron.schedule("0 7 * * *", async () => {
+  // Change the Good Morning test to run at 1:56 AM
+  cron.schedule("56 1 * * *", async () => {
     console.log("🌅 Sending good morning message...");
     try {
       const msg = await generateGoodMorningMessage();
@@ -86,7 +87,8 @@ function scheduleMessages() {
     } catch (err) { console.error("❌ Error:", err); }
   }, { timezone: "Asia/Kolkata" });
 
-  cron.schedule("0 0 * * *", async () => {
+ // Change the Good Night test to run at 1:58 AM
+  cron.schedule("58 1 * * *", async () => {
     console.log("🌙 Sending good night message...");
     try {
       const msg = await generateGoodNightMessage();

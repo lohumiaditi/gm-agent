@@ -5,7 +5,7 @@ const cron = require("node-cron");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
 const BOYFRIEND_NUMBER = process.env.BOYFRIEND_NUMBER + "@c.us";
 const BOYFRIEND_NAME = process.env.BOYFRIEND_NAME;
@@ -78,7 +78,7 @@ async function generateGoodNightMessage() {
 
 function scheduleMessages() {
   // Change the Good Morning test to run at 1:56 AM
-  cron.schedule("0 2 * * *", async () => {
+  cron.schedule("12 2 * * *", async () => {
     console.log("🌅 Sending good morning message...");
     try {
       const msg = await generateGoodMorningMessage();
@@ -88,7 +88,7 @@ function scheduleMessages() {
   }, { timezone: "Asia/Kolkata" });
 
  // Change the Good Night test to run at 1:58 AM
-  cron.schedule("2 2 * * *", async () => {
+  cron.schedule("15 2 * * *", async () => {
     console.log("🌙 Sending good night message...");
     try {
       const msg = await generateGoodNightMessage();

@@ -82,7 +82,7 @@ async function generateGoodNightMessage() {
 
 function scheduleMessages() {
   // Morning Test 
-  cron.schedule("30 2 * * *", async () => {
+  cron.schedule("40 2 * * *", async () => {
     console.log("🌅 Sending good morning message...");
     try {
       const msg = await generateGoodMorningMessage();
@@ -92,7 +92,7 @@ function scheduleMessages() {
   }, { timezone: "Asia/Kolkata" });
 
   // Night Test 
-  cron.schedule("32 2 * * *", async () => {
+  cron.schedule("42 2 * * *", async () => {
     console.log("🌙 Sending good night message...");
     try {
       const msg = await generateGoodNightMessage();

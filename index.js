@@ -26,10 +26,16 @@ const client = new Client({
 });
 
 client.on("qr", (qr) => {
-  console.log("📱 SCAN THIS QR CODE:");
-  qrcode.generate(qr, { small: true });
+  console.log("\n\n========================================================");
+  console.log("🚨 NEW QR CODE GENERATED!");
+  console.log("1. Go to this website: https://www.the-qrcode-generator.com/");
+  console.log("2. Click the 'Text' option on the site.");
+  console.log("3. Copy the weird text below and paste it into the site.");
+  console.log("4. Scan the square it generates immediately! (You have 20 seconds)");
+  console.log("========================================================");
+  console.log(qr);
+  console.log("========================================================\n\n");
 });
-
 client.on("ready", () => {
   console.log("✅ WhatsApp connected! Agent is running...");
   scheduleMessages();

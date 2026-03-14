@@ -2,16 +2,15 @@ require("dotenv").config();
 const { Client, LocalAuth } = require("whatsapp-web.js");
 const qrcode = require("qrcode-terminal");
 const cron = require("node-cron");
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+const Groq = require("groq-sdk");
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 const BOYFRIEND_NUMBER = process.env.BOYFRIEND_NUMBER + "@c.us";
 const BOYFRIEND_NAME = process.env.BOYFRIEND_NAME;
 
 const client = new Client({
-  authStrategy: new LocalAuth(), // Railway Volume will save this automatically!
+  authStrategy: new LocalAuth(), 
   puppeteer: {
     headless: true,
     executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || null,
@@ -36,6 +35,7 @@ client.on("qr", (qr) => {
   console.log(qr);
   console.log("========================================================\n\n");
 });
+
 client.on("ready", () => {
   console.log("✅ WhatsApp connected! Agent is running...");
   scheduleMessages();
@@ -66,19 +66,27 @@ function getRandomStyle() {
 async function generateGoodMorningMessage() {
   const today = new Date().toLocaleDateString("en-IN", { weekday: "long", month: "long", day: "numeric" });
   const prompt = `Write ${getRandomStyle()} as a good morning message for my boyfriend named ${BOYFRIEND_NAME}. Today is ${today}. Rules: Keep it short (2-4 lines), genuine, warm, max 2 emojis, no generic openers. Only return the message itself.`;
-  const result = await model.generateContent(prompt);
-  return result.response.text();
+  
+  const chatCompletion = await groq.chat.completions.create({
+    messages: [{ role: "user", content: prompt }],
+    model: "llama-3.3-70b-versatile",
+  });
+  return chatCompletion.choices[0].message.content;
 }
 
 async function generateGoodNightMessage() {
   const prompt = `Write ${getRandomStyle()} as a good night message for my boyfriend named ${BOYFRIEND_NAME}. Rules: Keep it short (2-4 lines), tender, intimate, max 2 emojis, no generic lines. Only return the message itself.`;
-  const result = await model.generateContent(prompt);
-  return result.response.text();
+  
+  const chatCompletion = await groq.chat.completions.create({
+    messages: [{ role: "user", content: prompt }],
+    model: "llama-3.3-70b-versatile",
+  });
+  return chatCompletion.choices[0].message.content;
 }
 
 function scheduleMessages() {
-  // Change the Good Morning test to run at 1:56 AM
-  cron.schedule("12 2 * * *", async () => {
+  // Morning Test 
+  cron.schedule("30 2 * * *", async () => {
     console.log("🌅 Sending good morning message...");
     try {
       const msg = await generateGoodMorningMessage();
@@ -87,8 +95,8 @@ function scheduleMessages() {
     } catch (err) { console.error("❌ Error:", err); }
   }, { timezone: "Asia/Kolkata" });
 
- // Change the Good Night test to run at 1:58 AM
-  cron.schedule("15 2 * * *", async () => {
+  // Night Test 
+  cron.schedule("32 2 * * *", async () => {
     console.log("🌙 Sending good night message...");
     try {
       const msg = await generateGoodNightMessage();
@@ -97,7 +105,7 @@ function scheduleMessages() {
     } catch (err) { console.error("❌ Error:", err); }
   }, { timezone: "Asia/Kolkata" });
 
-  console.log("📅 Scheduled: Good morning at 7AM & Good night at 12AM IST");
+  console.log("📅 Scheduled: Good morning and Good night tests.");
 }
 
 client.initialize();

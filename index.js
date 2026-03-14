@@ -3,7 +3,12 @@ const fs = require("fs");
 const path = require("path");
 
 // Restore session from environment variable if present
-if (process.env.SESSION_DATA) {
+const sessionRaw = (process.env.SESSION_DATA_1 || "") + 
+                   (process.env.SESSION_DATA_2 || "") + 
+                   (process.env.SESSION_DATA_3 || "") + 
+                   (process.env.SESSION_DATA_4 || "");
+
+if (sessionRaw) {
   console.log("📦 Restoring session from environment variable...");
   try {
     const sessionPath = ".wwebjs_auth/session";
@@ -20,7 +25,7 @@ if (process.env.SESSION_DATA) {
       }
     }
     const sessionData = JSON.parse(
-      Buffer.from(process.env.SESSION_DATA, "base64").toString()
+      Buffer.from(sessionRaw, "base64").toString()
     );
     writeDirRecursive(sessionPath, sessionData);
     console.log("✅ Session restored successfully!");

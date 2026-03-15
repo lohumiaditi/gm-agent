@@ -4,8 +4,12 @@ const qrcode = require("qrcode-terminal");
 const cron = require("node-cron");
 const Groq = require("groq-sdk");
 
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+// Check if Key exists
+if (!process.env.GROQ_API_KEY) {
+    console.error("❌ ERROR: GROQ_API_KEY is missing in Railway Variables!");
+}
 
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 const BOYFRIEND_NUMBER = process.env.BOYFRIEND_NUMBER + "@c.us";
 const BOYFRIEND_NAME = process.env.BOYFRIEND_NAME;
 
@@ -14,103 +18,107 @@ const client = new Client({
   puppeteer: {
     headless: true,
     executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || null,
-    protocolTimeout: 300000,
-    timeout: 300000,
+    protocolTimeout: 86400000, // Extreme patience
+    timeout: 86400000,
     args: [
-      "--no-sandbox",
-      "--disable-setuid-sandbox",
-      "--disable-dev-shm-usage",
-      "--disable-gpu",
+      "--no-sandbox", 
+      "--disable-setuid-sandbox", 
+      "--disable-dev-shm-usage", 
+      "--disable-gpu", 
       "--no-first-run",
       "--disable-background-timer-throttling",
       "--disable-backgrounding-occluded-windows",
-      "--disable-renderer-backgrounding"
+      "--disable-renderer-backgrounding",
+      "--disable-features=site-per-process" // Stops Chrome from killing idle tabs
     ]
   }
 });
 
 client.on("qr", (qr) => {
-  console.log("\n\n========================================================");
-  console.log("🚨 NEW QR CODE GENERATED!");
-  console.log("1. Go to this website: https://www.the-qrcode-generator.com/");
-  console.log("2. Click the 'Text' option on the site.");
-  console.log("3. Copy the weird text below and paste it into the site.");
-  console.log("4. Scan the square it generates immediately! (You have 20 seconds)");
-  console.log("========================================================");
-  console.log(qr);
-  console.log("========================================================\n\n");
+  console.log("🚨 QR CODE GENERATED - Check instructions in previous chat to scan!");
 });
 
 client.on("ready", () => {
-  console.log("✅ WhatsApp connected! Agent is running...");
+  console.log("✅ WhatsApp connected! Agent is ready to send.");
   scheduleMessages();
+
+  // 💓 KEEP-ALIVE PING: Runs every 15 minutes so WhatsApp never goes to sleep
+  cron.schedule("*/15 * * * *", async () => {
+    try {
+      const state = await client.getState();
+      console.log(`💓 Heartbeat ping... WhatsApp State: ${state}`);
+    } catch(err) {
+      console.log("⚠️ Heartbeat failed. Forcing container restart to recover...");
+      process.exit(1); 
+    }
+  });
 });
 
 client.on("disconnected", (reason) => {
   console.log("❌ Disconnected:", reason);
-  process.exit(1);
+  process.exit(1); 
 });
 
 const messageStyles = [
   "a short sweet loving message in English",
   "a tender loving message in Hindi (use Hindi script)",
   "a sweet message in Marathi (use Marathi script)",
-  "a romantic short poem in English",
-  "a romantic short poem in Hindi (use Hindi script)",
   "a mix of Hindi and English (Hinglish) love message",
   "a playful and cute love message in English",
   "a deeply emotional and heartfelt message in English",
-  "a short Marathi poem",
-  "a message using a beautiful metaphor about love"
+  "a funny love poem",
+  "a funny and playful love message"
 ];
 
 function getRandomStyle() {
   return messageStyles[Math.floor(Math.random() * messageStyles.length)];
 }
 
-async function generateGoodMorningMessage() {
-  const today = new Date().toLocaleDateString("en-IN", { weekday: "long", month: "long", day: "numeric" });
-  const prompt = `Write ${getRandomStyle()} as a good morning message for my boyfriend named ${BOYFRIEND_NAME}. Today is ${today}. Rules: Keep it short (2-4 lines), genuine, warm, max 2 emojis, no generic openers. Only return the message itself.`;
-  
-  const chatCompletion = await groq.chat.completions.create({
-    messages: [{ role: "user", content: prompt }],
-    model: "llama-3.3-70b-versatile",
-  });
-  return chatCompletion.choices[0].message.content;
-}
-
-async function generateGoodNightMessage() {
-  const prompt = `Write ${getRandomStyle()} as a good night message for my boyfriend named ${BOYFRIEND_NAME}. Rules: Keep it short (2-4 lines), tender, intimate, max 2 emojis, no generic lines. Only return the message itself.`;
-  
-  const chatCompletion = await groq.chat.completions.create({
-    messages: [{ role: "user", content: prompt }],
-    model: "llama-3.3-70b-versatile",
-  });
-  return chatCompletion.choices[0].message.content;
+async function generateMessage(prompt) {
+  try {
+    const chatCompletion = await groq.chat.completions.create({
+      messages: [{ role: "user", content: prompt }],
+      model: "llama-3.3-70b-versatile",
+    });
+    return chatCompletion.choices[0].message.content;
+  } catch (err) {
+    console.error("❌ AI Generation Error:", err.message);
+    return "Thinking of you and smiling! 💕";
+  }
 }
 
 function scheduleMessages() {
-  // Morning Test 
-  cron.schedule("0 7 * * *", async () => {
-    console.log("🌅 Sending good morning message...");
+  const nicknames = "navraa, cutuu, tannu, kuchhi, or baby";
+
+  // 🌅 7:00 AM IST Schedule (Left as normal for tomorrow morning!)
+  cron.schedule("48 10 * * *", async () => {
+    console.log("🚀 TRIGGERED: Morning Message Process Starting...");
+    const prompt = `Write ${getRandomStyle()} as a good morning message for my boyfriend ${BOYFRIEND_NAME}. You MUST address him using one of these affectionate nicknames: ${nicknames}. Keep it short (2-4 lines), loving, and use max 2 emojis. Do not use generic openers. Return only the message text.`;
+    const msg = await generateMessage(prompt);
     try {
-      const msg = await generateGoodMorningMessage();
       await client.sendMessage(BOYFRIEND_NUMBER, msg);
-      console.log("✅ Morning sent:\n", msg);
-    } catch (err) { console.error("❌ Error:", err); }
+      console.log("✅ SUCCESS: Morning message sent!\n", msg);
+    } catch (err) {
+      console.error("❌ FAILED to send. Forcing restart...", err);
+      process.exit(1);
+    }
   }, { timezone: "Asia/Kolkata" });
 
-  // Night Test 
-  cron.schedule("30 11 * * *", async () => {
-    console.log("🌙 Sending good night message...");
+  // 🌙 NIGHT TEST (Change the time here to 2 mins from now!)
+  cron.schedule("50 10 * * *", async () => {
+    console.log("🚀 TRIGGERED: Night Test Process Starting...");
+    const prompt = `Write ${getRandomStyle()} as a good night message for my boyfriend ${BOYFRIEND_NAME}. You MUST address him using one of these affectionate nicknames: ${nicknames}. Keep it short (2-4 lines), sweet, and use max 2 emojis. Return only the message text.`;
+    const msg = await generateMessage(prompt);
     try {
-      const msg = await generateGoodNightMessage();
       await client.sendMessage(BOYFRIEND_NUMBER, msg);
-      console.log("✅ Night sent:\n", msg);
-    } catch (err) { console.error("❌ Error:", err); }
+      console.log("✅ SUCCESS: Night test message sent!\n", msg);
+    } catch (err) {
+      console.error("❌ FAILED to send. Forcing restart...", err);
+      process.exit(1);
+    }
   }, { timezone: "Asia/Kolkata" });
 
-  console.log("📅 Scheduled: Good morning and Good night tests.");
+  console.log("📅 Scheduled: Good morning at 7AM & Night test coming up!");
 }
 
 client.initialize();

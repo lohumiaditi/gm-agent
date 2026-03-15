@@ -126,7 +126,7 @@ function scheduleMessages() {
 
   // 🧪 TEST SCHEDULE: Change the numbers below to exactly 2 mins from your current time!
   // Format is: "Minute Hour * * *"
-  cron.schedule("13 11 * * *", async () => {
+  cron.schedule("25 11 * * *", async () => {
     console.log("🚀 TRIGGERED: Test Process Starting...");
     const prompt = `Write ${getRandomStyle()} as a funny love message for my boyfriend ${BOYFRIEND_NAME}. You MUST address him using one of these affectionate nicknames: ${nicknames}. Keep it short (2-4 lines), sweet, and use max 2 emojis. Return only the message text.`;
     const msg = await generateMessage(prompt);

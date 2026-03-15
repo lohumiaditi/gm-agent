@@ -65,20 +65,22 @@ client.on("disconnected", (reason) => {
   process.exit(1); 
 });
 
-// Styles for Boyfriend
+// Styles for Boyfriend (Mix of sweet & roast)
 const bfStyles = [
   "a funny love poem",
-  "a funny and playful love message",
-  "a mix of Hindi and English (Hinglish) playful message",
-  "a witty and sweet observation about love"
+  "a deeply emotional and heartfelt message",
+  "a witty and playful roast about him",
+  "a romantic message with a sarcastic joke",
+  "a short, sweet, and cute love note"
 ];
 
-// Styles for Sister
+// Styles for Sister (100% Hype & Love)
 const sisterStyles = [
-  "a sarcastic greeting",
-  "a witty roast",
-  "a funny dramatic monologue",
-  "a playful insult wrapped in prose"
+  "a warm, loving message with a positive affirmation",
+  "an encouraging note cheering on her hard work for PhD admissions",
+  "a sweet message celebrating her impactful work in the mental health field",
+  "a proud sister moment manifesting her scholarships and success",
+  "a witty but fiercely supportive morning hype message"
 ];
 
 function getRandomStyle(stylesArray) {
@@ -93,7 +95,7 @@ async function generateMessage(prompt) {
       messages: [
         { 
           role: "system", 
-          content: "You are a super intelligent, witty, and comic person who makes quips, writes prose, and makes jokes. Your tone is highly clever, humorous, and entertaining." 
+          content: "You are a super intelligent, witty, and comic person who makes quips, writes prose, and makes jokes. You are fiercely supportive and loving to your sister, acting as her ultimate hype-woman. With your boyfriend, you are a mix of playfully romantic and sarcastically teasing." 
         },
         { role: "user", content: prompt }
       ],
@@ -103,7 +105,7 @@ async function generateMessage(prompt) {
     return chatCompletion.choices[0].message.content;
   } catch (err) {
     console.error("❌ Groq Generation Error:", err.message);
-    return "Thinking of you! 💕"; // Fallback
+    return "Thinking of you and smiling today! 💕"; // Fallback
   }
 }
 
@@ -111,13 +113,13 @@ function scheduleMessages() {
   const nicknames = "navraa, cutuu, tannu, kuchhi, or baby";
 
   // ---------------------------------------------------------
-  // 🧪 TEST SCHEDULE: 11:40 AM IST for BOTH
+  // 🧪 MULTI-TEST SCHEDULE: Change the time below to test!
   // ---------------------------------------------------------
-  cron.schedule("40 11 * * *", async () => {
-    console.log("🚀 TRIGGERED: 11:40 AM Multi-Test Process Starting...");
+  cron.schedule("55 11 * * *", async () => {
+    console.log("🚀 TRIGGERED: Multi-Test Process Starting...");
 
     // --- 1. BOYFRIEND TEST ---
-    const bfPrompt = `Write ${getRandomStyle(bfStyles)} to say good morning to my boyfriend ${BOYFRIEND_NAME}. You MUST address him using one of these affectionate nicknames: ${nicknames}. Keep it short (2-4 lines), sweet but funny, and use max 2 emojis. Return only the message text.`;
+    const bfPrompt = `Write ${getRandomStyle(bfStyles)} to my boyfriend ${BOYFRIEND_NAME}. You MUST address him using one of these affectionate nicknames: ${nicknames}. Keep it short (2-4 lines), and use max 2 emojis. Return only the message text.`;
     const bfMsg = await generateMessage(bfPrompt);
     
     try {
@@ -133,7 +135,7 @@ function scheduleMessages() {
     await new Promise(resolve => setTimeout(resolve, 10000));
 
     // --- 2. SISTER TEST ---
-    const sisterPrompt = `Write ${getRandomStyle(sisterStyles)} to my sister ${SISTER_NAME} to check in on her. Pull her leg and roast her heavily about having very little hair on her head and extremely chubby cheeks. Keep it short (2-4 lines), highly witty, comic, and teasing. Max 2 emojis. Return only the message text.`;
+    const sisterPrompt = `Write ${getRandomStyle(sisterStyles)} to my sister ${SISTER_NAME}. She works in mental health and is working incredibly hard to get her PhD admissions and scholarships. Keep it short (2-4 lines), highly supportive, witty but incredibly loving. Max 2 emojis. Return only the message text.`;
     const sisterMsg = await generateMessage(sisterPrompt);
 
     try {
@@ -151,14 +153,14 @@ function scheduleMessages() {
   // ---------------------------------------------------------
   // Boyfriend Morning (7:00 AM)
   cron.schedule("0 7 * * *", async () => {
-    const prompt = `Write ${getRandomStyle(bfStyles)} as a good morning message for my boyfriend ${BOYFRIEND_NAME}. You MUST address him using one of these affectionate nicknames: ${nicknames}. Keep it short (2-4 lines), funny but loving, max 2 emojis. Return only the message text.`;
+    const prompt = `Write ${getRandomStyle(bfStyles)} as a good morning message for my boyfriend ${BOYFRIEND_NAME}. You MUST address him using one of these affectionate nicknames: ${nicknames}. Keep it short (2-4 lines), max 2 emojis. Return only the message text.`;
     const msg = await generateMessage(prompt);
     try { await client.sendMessage(BOYFRIEND_NUMBER, msg); } catch (err) { process.exit(1); }
   }, { timezone: "Asia/Kolkata" });
 
-  // Sister Morning Roast (8:00 AM)
+  // Sister Morning (8:00 AM)
   cron.schedule("0 8 * * *", async () => {
-    const prompt = `Write ${getRandomStyle(sisterStyles)} as a good morning message to my sister ${SISTER_NAME}. Pull her leg about her balding/thinning hair and massive chubby cheeks. Keep it short (2-4 lines), witty, and teasing. Max 2 emojis. Return only the message text.`;
+    const prompt = `Write ${getRandomStyle(sisterStyles)} as a good morning message to my sister ${SISTER_NAME}. She works in mental health and is grinding for PhD admissions and scholarships. Keep it short (2-4 lines), witty, uplifting, and fiercely loving. Max 2 emojis. Return only the message text.`;
     const msg = await generateMessage(prompt);
     try { await client.sendMessage(SISTER_NUMBER, msg); } catch (err) { process.exit(1); }
   }, { timezone: "Asia/Kolkata" });
@@ -170,7 +172,7 @@ function scheduleMessages() {
     try { await client.sendMessage(BOYFRIEND_NUMBER, msg); } catch (err) { process.exit(1); }
   }, { timezone: "Asia/Kolkata" });
 
-  console.log("📅 Scheduled: Daily routines + 11:40 AM Multi-Test loaded!");
+  console.log("📅 Scheduled: Daily routines + Multi-Test loaded!");
 }
 
 client.initialize();

@@ -18,8 +18,8 @@ const client = new Client({
   puppeteer: {
     headless: true,
     executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || null,
-    protocolTimeout: 86400000, // Extreme patience
-    timeout: 86400000,
+    protocolTimeout: 60000, // 60 seconds (Fails fast if stuck)
+    timeout: 60000,         // 60 seconds
     args: [
       "--no-sandbox", 
       "--disable-setuid-sandbox", 
@@ -29,7 +29,7 @@ const client = new Client({
       "--disable-background-timer-throttling",
       "--disable-backgrounding-occluded-windows",
       "--disable-renderer-backgrounding",
-      "--disable-features=site-per-process" // Stops Chrome from killing idle tabs
+      "--disable-features=site-per-process" 
     ]
   }
 });
@@ -42,8 +42,8 @@ client.on("ready", () => {
   console.log("✅ WhatsApp connected! Agent is ready to send.");
   scheduleMessages();
 
-  // 💓 KEEP-ALIVE PING: Runs every 15 minutes so WhatsApp never goes to sleep
-  cron.schedule("*/15 * * * *", async () => {
+  // 💓 KEEP-ALIVE PING: Runs every 5 minutes to stay wide awake
+  cron.schedule("*/5 * * * *", async () => {
     try {
       const state = await client.getState();
       console.log(`💓 Heartbeat ping... WhatsApp State: ${state}`);
@@ -76,13 +76,15 @@ function getRandomStyle() {
 
 async function generateMessage(prompt) {
   try {
+    console.log("🤖 Asking Groq to write the message...");
     const chatCompletion = await groq.chat.completions.create({
       messages: [{ role: "user", content: prompt }],
       model: "llama-3.3-70b-versatile",
     });
+    console.log("🧠 Groq successfully wrote the message!");
     return chatCompletion.choices[0].message.content;
   } catch (err) {
-    console.error("❌ AI Generation Error:", err.message);
+    console.error("❌ Groq Generation Error:", err.message);
     return "Thinking of you and smiling! 💕";
   }
 }
@@ -90,35 +92,53 @@ async function generateMessage(prompt) {
 function scheduleMessages() {
   const nicknames = "navraa, cutuu, tannu, kuchhi, or baby";
 
-  // 🌅 7:00 AM IST Schedule (Left as normal for tomorrow morning!)
-  cron.schedule("48 10 * * *", async () => {
+  // 🌅 7:00 AM IST Schedule
+  cron.schedule("0 7 * * *", async () => {
     console.log("🚀 TRIGGERED: Morning Message Process Starting...");
     const prompt = `Write ${getRandomStyle()} as a good morning message for my boyfriend ${BOYFRIEND_NAME}. You MUST address him using one of these affectionate nicknames: ${nicknames}. Keep it short (2-4 lines), loving, and use max 2 emojis. Do not use generic openers. Return only the message text.`;
     const msg = await generateMessage(prompt);
     try {
+      console.log("📱 Sending message to WhatsApp...");
       await client.sendMessage(BOYFRIEND_NUMBER, msg);
       console.log("✅ SUCCESS: Morning message sent!\n", msg);
     } catch (err) {
-      console.error("❌ FAILED to send. Forcing restart...", err);
-      process.exit(1);
+      console.error("❌ FAILED to send via WhatsApp. Forcing restart...", err);
+      process.exit(1); // Force Railway to cleanly reboot the container
     }
   }, { timezone: "Asia/Kolkata" });
 
-  // 🌙 NIGHT TEST (Change the time here to 2 mins from now!)
-  cron.schedule("50 10 * * *", async () => {
-    console.log("🚀 TRIGGERED: Night Test Process Starting...");
+  // 🌙 12:00 AM IST Schedule
+  cron.schedule("0 0 * * *", async () => {
+    console.log("🚀 TRIGGERED: Night Message Process Starting...");
     const prompt = `Write ${getRandomStyle()} as a good night message for my boyfriend ${BOYFRIEND_NAME}. You MUST address him using one of these affectionate nicknames: ${nicknames}. Keep it short (2-4 lines), sweet, and use max 2 emojis. Return only the message text.`;
     const msg = await generateMessage(prompt);
     try {
+      console.log("📱 Sending message to WhatsApp...");
       await client.sendMessage(BOYFRIEND_NUMBER, msg);
-      console.log("✅ SUCCESS: Night test message sent!\n", msg);
+      console.log("✅ SUCCESS: Night message sent!\n", msg);
     } catch (err) {
-      console.error("❌ FAILED to send. Forcing restart...", err);
+      console.error("❌ FAILED to send via WhatsApp. Forcing restart...", err);
       process.exit(1);
     }
   }, { timezone: "Asia/Kolkata" });
 
-  console.log("📅 Scheduled: Good morning at 7AM & Night test coming up!");
+  // 🧪 TEST SCHEDULE: Change the numbers below to exactly 2 mins from your current time!
+  // Format is: "Minute Hour * * *"
+  cron.schedule("13 11 * * *", async () => {
+    console.log("🚀 TRIGGERED: Test Process Starting...");
+    const prompt = `Write ${getRandomStyle()} as a funny love message for my boyfriend ${BOYFRIEND_NAME}. You MUST address him using one of these affectionate nicknames: ${nicknames}. Keep it short (2-4 lines), sweet, and use max 2 emojis. Return only the message text.`;
+    const msg = await generateMessage(prompt);
+    try {
+      console.log("📱 Sending message to WhatsApp...");
+      await client.sendMessage(BOYFRIEND_NUMBER, msg);
+      console.log("✅ SUCCESS: Test message sent!\n", msg);
+    } catch (err) {
+      console.error("❌ FAILED to send via WhatsApp. Forcing restart...", err);
+      process.exit(1);
+    }
+  }, { timezone: "Asia/Kolkata" });
+
+  console.log("📅 Scheduled: Good morning, Good night, and Test loaded!");
 }
 
 client.initialize();

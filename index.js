@@ -15,11 +15,11 @@ const BOYFRIEND_NAME = process.env.BOYFRIEND_NAME;
 
 const client = new Client({
   authStrategy: new LocalAuth(), 
-  puppeteer: {
+puppeteer: {
     headless: true,
     executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || null,
-    protocolTimeout: 60000, // 60 seconds (Fails fast if stuck)
-    timeout: 60000,         // 60 seconds
+    protocolTimeout: 60000, 
+    timeout: 60000,         
     args: [
       "--no-sandbox", 
       "--disable-setuid-sandbox", 
@@ -29,7 +29,9 @@ const client = new Client({
       "--disable-background-timer-throttling",
       "--disable-backgrounding-occluded-windows",
       "--disable-renderer-backgrounding",
-      "--disable-features=site-per-process" 
+      "--disable-features=site-per-process",
+      "--js-flags=--max-old-space-size=256", // Forces strict RAM limit
+      "--disable-extensions" // Turns off unnecessary browser background junk
     ]
   }
 });

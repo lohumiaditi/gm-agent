@@ -2,7 +2,7 @@ Here's a fun README for your project:
 
 ---
 
-# 💌 lover of my lover: The AI Agent
+# 💌 AutoBae: The AI Agent
 
 > An AI that loves your boyfriend on your behalf. Responsibly.
 

@@ -1,8 +1,5 @@
-Here's a fun README for your project:
 
----
-
-# 💌 AutoBae: The AI Agent
+# 💌 AutoBae: Your AI-assisted Love Bot.
 
 > An AI that loves your boyfriend on your behalf. Responsibly.
 
@@ -54,7 +51,8 @@ You built it. You get all the credit.
 |-------|-----|
 | `whatsapp-web.js` | Sends messages through your personal WhatsApp |
 | `Node.js` | Runs the whole thing |
-| `Gemini AI (free tier)` | Writes the messages. Romantic AND free. |
+| `Groq API (free tier)` | Blazing fast inference. Writes the messages. Romantic AND free. |
+| `llama-3.3-70b-versatile` | The model doing all the sweet talking |
 | `node-cron` | Schedules messages at exactly 7AM and 12AM IST |
 | `Railway` | Keeps it running 24/7 in the cloud |
 
@@ -64,23 +62,28 @@ You built it. You get all the credit.
 
 ### 1. Clone the repo
 ```bash
-git clone https://github.com/yourusername/boyfriend-agent.git
-cd boyfriend-agent
+git clone https://github.com/yourusername/DelegatedAffection.git
+cd DelegatedAffection
 npm install
 ```
 
-### 2. Get your free Gemini API key
-Go to [aistudio.google.com](https://aistudio.google.com) → Get API Key → Copy it.
+### 2. Get your free Groq API key
+Go to [console.groq.com](https://console.groq.com) → Sign up → API Keys → Create API Key → Copy it.
 
-### 3. Create your `.env` file
+### 3. Install the Groq SDK
+```bash
+npm install groq-sdk
+```
+
+### 4. Create your `.env` file
 ```env
-GEMINI_API_KEY=your_key_here
+GROQ_API_KEY=your_key_here
 BOYFRIEND_NAME=his_name_here
 BOYFRIEND_NUMBER=91xxxxxxxxxx
 ```
 > Phone number format: country code + number, no spaces, no +
 
-### 4. Run it locally first (to scan QR)
+### 5. Run it locally first (to scan QR)
 ```bash
 node index.js
 ```
@@ -94,7 +97,7 @@ Wait for:
 
 Press `Ctrl+C` — your session is now saved.
 
-### 5. Deploy to Railway
+### 6. Deploy to Railway
 - Push code to GitHub
 - Connect repo on [railway.app](https://railway.app)
 - Add your 3 environment variables
@@ -124,7 +127,7 @@ The agent randomly picks from these styles every time:
 ## Project Structure
 
 ```
-boyfriend-agent/
+DelegatedAffection/
 ├── index.js           # The whole agent lives here
 ├── backup-session.js  # Saves your WhatsApp session
 ├── .env               # Your secrets (never commit this)
@@ -140,7 +143,8 @@ boyfriend-agent/
 - This uses your **personal WhatsApp number** to send messages, not WhatsApp Business
 - The session is saved so you only scan QR once
 - If WhatsApp logs out your linked device, just re-run locally and re-scan
-- Gemini free tier gives you 1,500 requests/day — more than enough for 2 messages/day
+- Groq free tier is extremely generous — more than enough for 2 messages a day
+- `llama-3.3-70b-versatile` is one of the best open source models available and it's completely free on Groq
 
 ---
 

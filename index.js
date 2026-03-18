@@ -110,43 +110,8 @@ async function generateMessage(prompt) {
 }
 
 function scheduleMessages() {
-  const nicknames = "navraa, cutuu, tannu, kuchhi, or baby";
+  const nicknames = "navraa, cutuu, tannu, tanninder, kuchhi, or baby";
 
-  // ---------------------------------------------------------
-  // 🧪 MULTI-TEST SCHEDULE: Change the time below to test!
-  // ---------------------------------------------------------
-  cron.schedule("55 11 * * *", async () => {
-    console.log("🚀 TRIGGERED: Multi-Test Process Starting...");
-
-    // --- 1. BOYFRIEND TEST ---
-    const bfPrompt = `Write ${getRandomStyle(bfStyles)} to my boyfriend ${BOYFRIEND_NAME}. You MUST address him using one of these affectionate nicknames: ${nicknames}. Keep it short (2-4 lines), and use max 2 emojis. Return only the message text.`;
-    const bfMsg = await generateMessage(bfPrompt);
-    
-    try {
-      console.log("📱 Sending message to Boyfriend...");
-      await client.sendMessage(BOYFRIEND_NUMBER, bfMsg);
-      console.log("✅ SUCCESS: Boyfriend test sent!\n", bfMsg);
-    } catch (err) {
-      console.error("❌ FAILED to send to Boyfriend.", err);
-    }
-
-    // Wait 10 seconds to avoid WhatsApp spam detection
-    console.log("⏳ Waiting 10 seconds before texting sister...");
-    await new Promise(resolve => setTimeout(resolve, 10000));
-
-    // --- 2. SISTER TEST ---
-    const sisterPrompt = `Write ${getRandomStyle(sisterStyles)} to my sister ${SISTER_NAME}. She works in mental health and is working incredibly hard to get her PhD admissions and scholarships. Keep it short (2-4 lines), highly supportive, witty but incredibly loving. Max 2 emojis. Return only the message text.`;
-    const sisterMsg = await generateMessage(sisterPrompt);
-
-    try {
-      console.log("📱 Sending message to Sister...");
-      await client.sendMessage(SISTER_NUMBER, sisterMsg);
-      console.log("✅ SUCCESS: Sister test sent!\n", sisterMsg);
-    } catch (err) {
-      console.error("❌ FAILED to send to Sister.", err);
-    }
-
-  }, { timezone: "Asia/Kolkata" });
 
   // ---------------------------------------------------------
   // 🌅 REGULAR DAILY SCHEDULES
@@ -158,12 +123,7 @@ function scheduleMessages() {
     try { await client.sendMessage(BOYFRIEND_NUMBER, msg); } catch (err) { process.exit(1); }
   }, { timezone: "Asia/Kolkata" });
 
-  // Sister Morning (8:00 AM)
-  cron.schedule("0 8 * * *", async () => {
-    const prompt = `Write ${getRandomStyle(sisterStyles)} as a good morning message to my sister ${SISTER_NAME}. She works in mental health and is grinding for PhD admissions and scholarships. Keep it short (2-4 lines), witty, uplifting, and fiercely loving. Max 2 emojis. Return only the message text.`;
-    const msg = await generateMessage(prompt);
-    try { await client.sendMessage(SISTER_NUMBER, msg); } catch (err) { process.exit(1); }
-  }, { timezone: "Asia/Kolkata" });
+
 
   // Boyfriend Night (12:00 AM)
   cron.schedule("0 0 * * *", async () => {
